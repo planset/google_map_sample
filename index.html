@@ -7,42 +7,27 @@
 	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=true"></script>
 	<script type="text/javascript">
 
-var map = null;
-var marker_list = new Array();
-const MAX_MARKERS = 10
+var gmap = null;
 
-function addMarker(map, lat, lng) {
-	var latlng = new google.maps.LatLng(lat, lng);
-	var marker = new google.maps.Marker({
-	            position: latlng
-	});
-	marker.setMap(map);
-	marker_list.push(marker);
-}
-function setCenter(map, lat, lng) {
-	map.setCenter(latlng);
-}
-function createMap(lat,lng) {
-	var latlng = new google.maps.LatLng(lat, lng);
+function createMap() {
 	var myOptions = {
 	    zoom: 15,
-	    center: latlng,
 	    mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 	return new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 }
 
-function locupdate(pos) { 
-	if (marker_list.length == 0){
-	    map = createMap(pos.coords.latitude, pos.coords.longitude);
-	}
-	if (map != null) {
-		addMarker(map, pos.coords.latitude, pos.coords.longitude);
-		setCenter(map, pos.coords.latitude, pos.coords.longitude);
-	}
-	if (marker_list.length > MAX_MARKERS) {
-		var marker = marker_list.shift();
-		marker.setMap(null);
+function updateLocation(pos) { 
+	var latlng = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+    
+	if (gmap == null){
+		gmap = createMap(latlng);
+	} else {
+        var marker = new google.maps.Marker({
+                    position: latlng
+        });
+        marker.setMap(gmap);
+		gmap.setCenter(latlng);
 	}
 }
 
@@ -55,7 +40,7 @@ window.onload = function(){
 		var options = {
 			timeout: 10000
 		};
-		navigator.geolocation.watchPosition(locupdate, handleError, options);
+		navigator.geolocation.watchPosition(updateLocation, handleError, options);
 	}
 };
 
